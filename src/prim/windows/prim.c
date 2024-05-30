@@ -18,6 +18,11 @@ terms of the MIT license. A copy of the license can be found in the file
 #define MI_HAS_CONSOLE_IO
 #endif
 
+// old mingw build doesn't have this
+#ifndef ERROR_COMMITMENT_MINIMUM
+#define ERROR_COMMITMENT_MINIMUM 635
+#endif
+
 //---------------------------------------------
 // Dynamically bind Windows API points for portability
 //---------------------------------------------
