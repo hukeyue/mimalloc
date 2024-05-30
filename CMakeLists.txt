@@ -455,10 +455,6 @@ if (MSVC AND MSVC_VERSION GREATER_EQUAL 1914)
   endif()
 endif()
 
-if(MINGW)
-  add_definitions(-D_WIN32_WINNT=0x600)                # issue #976
-endif()
-
 if(MI_OPT_ARCH_FLAGS)
   list(APPEND mi_cflags ${MI_OPT_ARCH_FLAGS})
   message(STATUS "Architecture specific optimization is enabled (with ${MI_OPT_ARCH_FLAGS}) (MI_OPT_ARCH=ON)")
