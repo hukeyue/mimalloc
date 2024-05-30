@@ -38,6 +38,7 @@ option(MI_BUILD_TESTS       "Build test executables" ON)
 
 option(MI_SKIP_COLLECT_ON_EXIT "Skip collecting memory on program exit" OFF)
 option(MI_NO_PADDING        "Force no use of padding even in DEBUG mode etc." OFF)
+option(MI_ENABLE_INSTALL    "Enable Install" OFF)
 option(MI_INSTALL_TOPLEVEL  "Install directly into $CMAKE_INSTALL_PREFIX instead of PREFIX/lib/mimalloc-version" OFF)
 option(MI_NO_THP            "Disable transparent huge pages support on Linux/Android for the mimalloc process only" OFF)
 option(MI_EXTRA_CPPDEFS     "Extra pre-processor definitions (use as `-DMI_EXTRA_CPPDEFS=\"opt1=val1;opt2=val2\"`)" "")
@@ -620,17 +621,23 @@ if(MI_BUILD_SHARED)
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
       $<INSTALL_INTERFACE:${mi_install_incdir}>
   )
+  if (MI_ENABLE_INSTALL)
   install(TARGETS mimalloc EXPORT mimalloc ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
   install(EXPORT mimalloc DESTINATION ${mi_install_cmakedir})
+  endif()
 
   if(WIN32 AND NOT MINGW)
     # On windows, the import library name for the dll would clash with the static mimalloc.lib library
     # so we postfix the dll import library with `.dll.lib` (and also the .pdb debug file)
     set_property(TARGET mimalloc PROPERTY ARCHIVE_OUTPUT_NAME "${mi_libname}.dll" )
+    if (MI_ENABLE_INSTALL)
     install(FILES "$<TARGET_FILE_DIR:mimalloc>/${mi_libname}.dll.lib" DESTINATION ${CMAKE_INSTALL_LIBDIR}/mimalloc-${mi_version})
+    endif()
     set_property(TARGET mimalloc PROPERTY PDB_NAME "${mi_libname}.dll")
     # don't try to install the pdb since it may not be generated depending on the configuration
+    if (MI_ENABLE_INSTALL)
     # install(FILES "$<TARGET_FILE_DIR:mimalloc>/${mi_libname}.dll.pdb" DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    endif()
   endif()
   if(WIN32 AND MI_WIN_REDIRECT)
     if(MINGW)
@@ -655,7 +662,9 @@ if(MI_BUILD_SHARED)
     add_custom_command(TARGET mimalloc POST_BUILD
       COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_CURRENT_SOURCE_DIR}/bin/mimalloc-redirect${MIMALLOC_REDIRECT_SUFFIX}.dll" $<TARGET_FILE_DIR:mimalloc>
       COMMENT "Copy mimalloc-redirect${MIMALLOC_REDIRECT_SUFFIX}.dll to output directory")
+    if (MI_ENABLE_INSTALL)
     install(FILES "$<TARGET_FILE_DIR:mimalloc>/mimalloc-redirect${MIMALLOC_REDIRECT_SUFFIX}.dll" DESTINATION ${CMAKE_INSTALL_BINDIR})
+    endif()
   endif()
 endif()
 
@@ -672,17 +681,21 @@ if (MI_BUILD_STATIC)
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
       $<INSTALL_INTERFACE:${mi_install_incdir}>
   )
+  if (MI_ENABLE_INSTALL)
   install(TARGETS mimalloc-static EXPORT mimalloc DESTINATION ${mi_install_objdir} LIBRARY)
   install(EXPORT mimalloc DESTINATION ${mi_install_cmakedir})
+  endif()
 endif()
 
 # install include files
+if (MI_ENABLE_INSTALL)
 install(FILES include/mimalloc.h DESTINATION ${mi_install_incdir})
 install(FILES include/mimalloc-override.h DESTINATION ${mi_install_incdir})
 install(FILES include/mimalloc-new-delete.h DESTINATION ${mi_install_incdir})
 install(FILES include/mimalloc-stats.h DESTINATION ${mi_install_incdir})
 install(FILES cmake/mimalloc-config.cmake DESTINATION ${mi_install_cmakedir})
 install(FILES cmake/mimalloc-config-version.cmake DESTINATION ${mi_install_cmakedir})
+endif()
 
 
 # single object file for more predictable static overriding
@@ -708,13 +721,17 @@ if (MI_BUILD_OBJECT)
 
 
   # the following seems to lead to cmake warnings/errors on some systems, disable for now :-(
+  if (MI_ENABLE_INSTALL)
   # install(TARGETS mimalloc-obj EXPORT mimalloc DESTINATION ${mi_install_objdir})
+  endif()
 
   # the FILES expression can also be: $<TARGET_OBJECTS:mimalloc-obj>
   # but that fails cmake versions less than 3.10 so we leave it as is for now
+  if (MI_ENABLE_INSTALL)
   install(FILES ${mimalloc-obj-static}
           DESTINATION ${mi_install_objdir}
           RENAME ${mi_libname}${CMAKE_C_OUTPUT_EXTENSION} )
+  endif()
 endif()
 
 
@@ -733,8 +750,10 @@ join_paths(mi_pc_includedir "\${prefix}" "${CMAKE_INSTALL_INCLUDEDIR}")
 join_paths(mi_pc_libdir "\${prefix}" "${CMAKE_INSTALL_LIBDIR}")
 
 configure_file(mimalloc.pc.in mimalloc.pc @ONLY)
+if (MI_ENABLE_INSTALL)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/mimalloc.pc"
         DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig/")
+endif()
 
 
 
