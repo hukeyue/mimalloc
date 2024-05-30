@@ -832,6 +832,7 @@ int _mi_prim_getenv(const char* name, char* result, size_t result_size) {
   return 0; // not found
 }
 #else
+#include <stdlib.h>
 // fallback: use standard C `getenv` but this cannot be used while initializing the C runtime
 int _mi_prim_getenv(const char* name, char* result, size_t result_size) {
   // cannot call getenv() when still initializing the C runtime.
