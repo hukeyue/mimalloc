@@ -609,7 +609,6 @@ message(STATUS "")
 # shared library
 if(MI_BUILD_SHARED)
   add_library(mimalloc SHARED ${mi_sources})
-  set_target_properties(mimalloc PROPERTIES VERSION ${mi_version} SOVERSION ${mi_version_major} OUTPUT_NAME ${mi_libname} )
   target_compile_definitions(mimalloc PRIVATE ${mi_defines} MI_SHARED_LIB MI_SHARED_LIB_EXPORT)
   target_compile_options(mimalloc PRIVATE ${mi_cflags} ${mi_cflags_dynamic})
   target_link_libraries(mimalloc PRIVATE ${mi_libraries})
