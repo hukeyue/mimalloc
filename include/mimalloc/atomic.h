@@ -430,7 +430,7 @@ static inline void mi_atomic_yield(void) {
 #define mi_lock_maybe(lock,acquire)    for(bool _mi_go = (acquire ? (mi_lock_acquire(lock),true) : true); _mi_go; _mi_go = (acquire ? (mi_lock_release(lock),false) : false) )
 
 
-#if defined(_WIN32)
+#if defined(_WIN32) && _WIN32_WINNT >= 0x0600
 
 typedef struct mi_lock_s {
   SRWLOCK mutex;    // slim reader-writer lock
