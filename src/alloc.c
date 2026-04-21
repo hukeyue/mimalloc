@@ -508,10 +508,10 @@ but we call `exit` instead (i.e. not returning).
 #ifdef __cplusplus
 #include <new>
 static bool mi_try_new_handler(bool nothrow) {
-  #if defined(_MSC_VER) || (__cplusplus >= 201103L)
+  #if (defined(_MSC_VER) || (__cplusplus >= 201103L)) && !(defined(_LIBCPP_VERSION) && defined(_MSC_VER))
     std::new_handler h = std::get_new_handler();
   #else
-    std::new_handler h = std::set_new_handler();
+    std::new_handler h = std::set_new_handler(0);
     std::set_new_handler(h);
   #endif
   if (h==NULL) {
